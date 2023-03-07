@@ -1,9 +1,13 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 
 public final class Constants {
 
@@ -22,11 +26,45 @@ public final class Constants {
 
   }
 
+  public static class FalconConstants {
+
+    public static final int CPR = 2048;
+
+    /**
+     * @param deg Value in degrees
+     * @param gearing Value < 0 for reductions
+     * @return Falcon Encoder Counts
+     */
+    public static int degreesToFalconCounts(double deg, double gearing){
+      return (int)(deg * (1d/360d) * (1/gearing) * (1d / CPR));
+    }
+
+    public static double falconCountsToDegrees(double counts, double gearing){
+      return counts * (1 / CPR) * gearing * 360;
+    }
+
+    /**
+     * @param counts Falcon encoder counts
+     * @param gearing Value < 0 for reductions
+     * @param wheelDiameter Diameter of wheel
+     * @return meters
+     */
+    public static double falconCountsToMeters(double counts, double gearing, double wheelDiameter){
+      return (1.0 / CPR) * wheelDiameter * Math.PI * gearing;
+    }
+
+  }
+
+  public static class ClawConstants {
+
+  }
+
   public static class DriveConstants {
 
     //ENCODERS YAY FUN 
     public static final double kWheelDiameter = Units.inchesToMeters(6);
-    public static final double kFalconToMeters = (1.0/2048) * (Units.inchesToMeters(6) * Math.PI) * (1/10.71) ; //10.71:1 gearbox
+    public static final double kGearing = 1 / KitbotGearing.k10p71.value;
+    public static final double kFalconToMeters = (1.0 / FalconConstants.CPR) * (kWheelDiameter * Math.PI) * kGearing;
     
     public static final double kS = 0.13305;
     public static final double kV = 2.2876;
@@ -46,6 +84,19 @@ public final class Constants {
 
   public static class PivotConstants {  
     
+    public static final double kGearing = (1d / 100d) * (16d / 60d);
+    public static final int kThroughboreDIO = 9;
+    public static final double kThroughboreOffset = 0.6789;
+    public static final PIDController kPID = new PIDController(2d/3d, 0, 0);
+    public static final double kPositionTollerance = 1; //1 Degree
+    public static final double kVelocotiyTollerance = 5; //5 Degrees/s
+
+    public static final int kRatchetForward = 6;
+    public static final int kRatchetReverse = 7;
+
+    public static final double kMaxAngle = 80;
+    public static final double kMinAngle = -20;
+
     public static enum SETPOINTS {
 
       INTAKE(-12), 
@@ -64,6 +115,11 @@ public final class Constants {
     }
 
   }
+  public static class ExtentionConstants{
+    public static final double kGearing = 1d / 16d;
+    public static final double kSpoolDiameter = Units.inchesToMeters(0.95);
 
+    public static final PIDController kPID = new PIDController(20/(Units.inchesToMeters(37)), 0, 0);
+    public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
+  }
 }
-

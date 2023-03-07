@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.autos.common.HybridCube;
-import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Extention;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.Pistons;
@@ -17,7 +17,7 @@ public class CubeTaxiRed extends SequentialCommandGroup {
     
     PathPlannerTrajectory trajectory = PathPlanner.loadPath("Red Taxi", new PathConstraints(3, 3));
     
-    public CubeTaxiRed(Drivetrain drivetrain, Pivot pivot, Arm arm, Pistons pistons, Claw claw) {
+    public CubeTaxiRed(Drivetrain drivetrain, Pivot pivot, Extention arm, Pistons pistons, Claw claw) {
         addCommands(
             new InstantCommand(pivot::zeroEncoder),
             new InstantCommand(() -> pivot.changeSetpoint(0), pivot),

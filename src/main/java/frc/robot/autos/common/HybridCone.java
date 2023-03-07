@@ -3,13 +3,13 @@ package frc.robot.autos.common;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Extention;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.claw.Pistons;
 
 public class HybridCone extends SequentialCommandGroup {
     
-    public HybridCone(Pistons pistons, Pivot pivot, Arm arm) {
+    public HybridCone(Pistons pistons, Pivot pivot, Extention arm) {
         addCommands(
             new SequentialCommandGroup(
                 new InstantCommand(

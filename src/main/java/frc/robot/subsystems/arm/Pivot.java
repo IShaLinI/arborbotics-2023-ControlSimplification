@@ -12,9 +12,10 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.CAN;
+import frc.robot.Constants.FalconConstants;
+import frc.robot.Constants.PivotConstants;
 
 public class Pivot extends SubsystemBase {
     
@@ -24,33 +25,35 @@ public class Pivot extends SubsystemBase {
     private final PIDController mPID;
 
     public double mTargetAngle;
-    public double falconOffset;
-    public double trimVal = 0;
+    public double mFalconOffset;
+    public double mTrimAngle = 0;
 
     public Pivot() {
 
-        mPivot = new WPI_TalonFX(Constants.CAN.kPivot);
-        mSolenoid = new DoubleSolenoid(Constants.CAN.kPCM, PneumaticsModuleType.REVPH, 6, 7);
-        mEncoder = new DutyCycleEncoder(9);
-        mPID = new PIDController(32 / 48.2, 0, 0);
-        Timer.delay(2);
-        mPivot.setInverted(InvertType.InvertMotorOutput);
-        mPivot.setSelectedSensorPosition(0);
-        mEncoder.setPositionOffset(0.6789);
-        falconOffset = degreeToFalcon(getThroughBoreAngle());
-        mPID.setTolerance(1, 5);
+        mPivot = new WPI_TalonFX(CAN.kPivot);
+        mSolenoid = new DoubleSolenoid(
+            CAN.kPCM, 
+            PneumaticsModuleType.REVPH, 
+            PivotConstants.kRatchetForward, 
+            PivotConstants.kRatchetReverse
+        );
 
-        ratchetDisable();
+        mEncoder = new DutyCycleEncoder(PivotConstants.kThroughboreDIO);
+        mPID = PivotConstants.kPID;
+        Timer.delay(1);
+        mEncoder.setPositionOffset(PivotConstants.kThroughboreOffset);
+        mPID.setTolerance(PivotConstants.kPositionTollerance, PivotConstants.kVelocotiyTollerance);
+
+        zeroEncoder();
         configureMotor();
-        startConfig();
 
     }
 
     public void configureMotor() {
-
         mPivot.configFactoryDefault();
         mPivot.setNeutralMode(NeutralMode.Brake);
-
+        mPivot.setInverted(InvertType.InvertMotorOutput);
+        mPivot.setSelectedSensorPosition(0);
         mPivot.configVoltageCompSaturation(10);
         mPivot.enableVoltageCompensation(true);
         mPivot.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 25, 25, 0));
@@ -58,17 +61,20 @@ public class Pivot extends SubsystemBase {
 
     public void runPivot() {
 
-        if(atSetpoint() == true) {
-            ratchetEnable();
-
+        if(atTarget()) {
+            engageRatchet();
             mPivot.set(0);
-
         }else{
-            ratchetDisable();
-
+            disengageRatchet();
+            
             double mPIDEffort = mPID.calculate(
                 getAngle(), 
-                MathUtil.clamp(mTargetAngle + trimVal, -20, 80));
+                MathUtil.clamp(
+                    mTargetAngle + mTrimAngle,
+                    PivotConstants.kMinAngle, 
+                    PivotConstants.kMaxAngle
+                )
+            );
 
             mPivot.set(mPIDEffort / 12);
         }
@@ -76,67 +82,38 @@ public class Pivot extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        falconOffset = degreeToFalcon(getThroughBoreAngle());
+        mFalconOffset = FalconConstants.degreesToFalconCounts(getThroughBoreAngle(), PivotConstants.kGearing);
     }
 
-    public boolean atSetpoint() {
-
-        if(mTargetAngle == getAngle()) {
-            return true;
-        }else{
-            return false;
-        }
-
+    public boolean atTarget(){
+        return mPID.atSetpoint();
     }
 
-    public void changeSetpoint(double setpoint) {
-
-        if (setpoint < getAngle()) {
-            ratchetDisable();
-        }
-
-        mTargetAngle = setpoint;
-
+    /**
+     * @param angle in degrees
+     */
+    public void trimTargetAngle(double angle){
+        mTrimAngle = angle;
     }
 
-    public void trimTargetAngle(double value){
-        trimVal = value;
-    }
-
-    public void ratchetEnable() {
+    public void engageRatchet() {
         mSolenoid.set(Value.kReverse);
     }
 
-    public void ratchetDisable() {
+    public void disengageRatchet() {
         mSolenoid.set(Value.kForward);
     }
   
     public void stop() {
-        mPivot.set(0);
-    }
-
-    public double falconToDegrees(double val){
-        return val * 1/2048d * 1/100 * 16/60d * 360;
+        mPivot.stopMotor();
     }
 
     public double getAngle() {
-        return falconToDegrees(mPivot.getSelectedSensorPosition() + falconOffset);
+        return FalconConstants.degreesToFalconCounts(mPivot.getSelectedSensorPosition() + mFalconOffset, PivotConstants.kGearing);
     }
 
     public double getThroughBoreAngle () {
         return ((mEncoder.getAbsolutePosition()) - mEncoder.getPositionOffset()) * 360;
-    }
-
-    public void resetFalcon() {
-        mPivot.setSelectedSensorPosition(0);
-    }
-
-    public double degreeToFalcon(double deg) {
-        return deg * (1d/360d) * (60d/16d) * 100 * 2048;
-    }
-
-    public void startConfig() {
-        mTargetAngle = 66;
     }
 
     @Override
@@ -144,14 +121,15 @@ public class Pivot extends SubsystemBase {
 
         runPivot();
 
-        SmartDashboard.putNumber("setpoint", mTargetAngle);
-        Logger.getInstance().recordOutput("TBE raw", mEncoder.getAbsolutePosition());
-        Logger.getInstance().recordOutput("TBE corrected", mEncoder.getAbsolutePosition() - mEncoder.getPositionOffset());
-        Logger.getInstance().recordOutput("target angle", mTargetAngle);
-        Logger.getInstance().recordOutput("arm degrees", getAngle());
-        Logger.getInstance().recordOutput("TBE angle", getThroughBoreAngle());
-        Logger.getInstance().recordOutput("Pivot Volts", mPivot.getMotorOutputVoltage());
-        Logger.getInstance().recordOutput("at setpoint?", atSetpoint());
+        Logger.getInstance().recordOutput("Pivot/TB Raw", mEncoder.getAbsolutePosition());
+        Logger.getInstance().recordOutput("Pivot/TB Offset", mEncoder.getAbsolutePosition() - mEncoder.getPositionOffset());
+        Logger.getInstance().recordOutput("Pivot/TB Angle", getThroughBoreAngle());
+        Logger.getInstance().recordOutput("Pivot/Setpoint Angle", mTargetAngle);
+        Logger.getInstance().recordOutput("Pivot/Current Angle", getAngle());
+        Logger.getInstance().recordOutput("Pivot/At Target", atTarget());
+        Logger.getInstance().recordOutput("Pivot/Motor Voltage", mPivot.getMotorOutputVoltage());
+        Logger.getInstance().recordOutput("Pivot/Ratchet State", mSolenoid.get() == Value.kReverse);
+        Logger.getInstance().recordOutput("Pivot/Trim Value", mTrimAngle);
 
     }
 }
