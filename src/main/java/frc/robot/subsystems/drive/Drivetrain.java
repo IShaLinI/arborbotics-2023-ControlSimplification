@@ -326,7 +326,7 @@ public class Drivetrain extends SubsystemBase {
             DriveConstants.kTrajectoryPID, // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
             DriveConstants.kTrajectoryPID, // Y controller (usually the same values as X controller)
             DriveConstants.kTrajectoryPID, // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            3.0, // Max wheel velocity meters per second
+            DriveConstants.kTrajectoryMaxSpeed, // Max wheel velocity meters per second
             this::setSpeeds, // MecanumDriveWheelSpeeds consumer
             false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
             this // Requires this drive subsystem
@@ -342,7 +342,6 @@ public class Drivetrain extends SubsystemBase {
     );
     
   }
-
 
 }
 

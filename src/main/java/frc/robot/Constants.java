@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -46,11 +47,12 @@ public final class Constants {
 
   public static class DriveConstants {
 
-    //ENCODERS YAY FUN 
+    //Robot Characteristics
     public static final double kWheelDiameter = Units.inchesToMeters(6);
     public static final double kGearing = 1 / KitbotGearing.k10p71.value;
     public static final double kFalconToMeters = (1.0 / Conversions.FALCON_CPR) * (kWheelDiameter * Math.PI) * kGearing;
     
+    //Characterization Values
     public static final double kS = 0.13305;
     public static final double kV = 2.2876;
     public static final double kA = 0.31596;
@@ -67,8 +69,20 @@ public final class Constants {
     };
 
     public static final PIDController kWheelPID = new PIDController(0.4, 0, 0);
-
     public static final PIDController kTrajectoryPID = new PIDController(1, 0, 0);
+    
+    //Meters/s
+    public static final double kTrajectoryMaxSpeed = 3;
+    public static final double kMaxTranslationSpeed = 3;
+    //Rad/s
+    public static final double kMaxRotationSpeed = Math.PI;
+
+    //Meters/s/s
+    public static final SlewRateLimiter kXTranslationLimiter = new SlewRateLimiter(2 * kMaxTranslationSpeed,2 * -kMaxTranslationSpeed, 0);
+    public static final SlewRateLimiter kYTranslationLimiter = new SlewRateLimiter(2 * kMaxTranslationSpeed,2 * -kMaxTranslationSpeed, 0);
+    
+    //Rad/s/s
+    public static final SlewRateLimiter kRotationLimiter = new SlewRateLimiter(2 * kMaxRotationSpeed, 2 * -kMaxRotationSpeed, 0);
 
   }
 

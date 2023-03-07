@@ -1,9 +1,7 @@
 package frc.robot;
 
 public class Conversions {
-
-    private Conversions(){}
-
+  
     public static int FALCON_CPR = 2048;
 
     /**
@@ -26,7 +24,7 @@ public class Conversions {
      * @return metsers
      */
     public static double falconCountsToMeters(double counts, double gearing, double wheelDiameter){
-      return (1.0 / FALCON_CPR) * wheelDiameter * Math.PI * gearing;
+      return counts * (1.0 / FALCON_CPR) * wheelDiameter * Math.PI * gearing;
     }
 
   }
