@@ -92,6 +92,11 @@ public class Extention extends SubsystemBase {
         return new InstantCommand(
             () -> mTargetDistance = setpoint.distance,
             this
+        ).andThen(
+            new InstantCommand(
+                () -> Logger.getInstance().recordOutput("Extention/Setpoint", setpoint.name()),
+                this
+            )
         );
     }
 

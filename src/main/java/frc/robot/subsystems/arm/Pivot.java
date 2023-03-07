@@ -140,6 +140,11 @@ public class Pivot extends SubsystemBase {
         return new InstantCommand(
             () -> mTargetAngle = setpoint.angle,
             this
+        ).andThen(
+            new InstantCommand(
+                () -> Logger.getInstance().recordOutput("Pivot/Setpoint", setpoint.name()),
+                this
+            )
         );
     }
 

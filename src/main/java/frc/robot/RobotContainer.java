@@ -4,23 +4,15 @@ import frc.robot.subsystems.arm.Extention;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Drivetrain;
-
-import org.littletonrobotics.junction.Logger;
-
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.PivotConstants;
 import frc.robot.custom.controls.Deadbander;
 
 public class RobotContainer {
@@ -74,6 +66,23 @@ public class RobotContainer {
       )
     );
 
+    mOperator.a().whileTrue(
+      mPivot.changeSetpoint(PivotConstants.SETPOINTS.INTAKE).alongWith(
+      mClaw.changeState(ClawConstants.State.GRAB)
+    ));
+
+    mOperator.b().whileTrue(
+      mClaw.changeState(ClawConstants.State.RELEASE)
+    );
+
+    mOperator.povUp().whileTrue(
+      mPivot.changeSetpoint(PivotConstants.SETPOINTS.SCORE)
+    );
+
+    //Consider automating carry state after intaking
+    mOperator.povRight().whileTrue(
+      mPivot.changeSetpoint(PivotConstants.SETPOINTS.CARRY)
+    );
 
   }
 
