@@ -50,7 +50,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
-    mRobotContainer.stopAll().schedule();
+    
   }
 
   @Override

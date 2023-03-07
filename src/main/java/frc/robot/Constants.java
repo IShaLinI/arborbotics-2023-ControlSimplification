@@ -5,11 +5,16 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 
 public final class Constants {
+
+  public static class RobotConstants {
+    public static final int kMaximumVoltage = 10;
+  }
 
   public static class CAN {
 
@@ -56,6 +61,15 @@ public final class Constants {
   }
 
   public static class ClawConstants {
+    public static final int kLeftPistonForward = 12;
+    public static final int kLeftPistonReverse = 13;
+
+    public static final int kRightPistonForward = 8;
+    public static final int kRightPistonReverse = 9;
+
+    public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
+
+    public static final double kSpeed = 0.6;
 
   }
 
@@ -71,6 +85,19 @@ public final class Constants {
     public static final double kA = 0.31596;
 
     public static double[] kDrivetrainCharacterization = {kS, kV, kA};
+
+    public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 25, 25, 0);
+
+    public static final Translation2d kWheelPositions[] = {
+      new Translation2d(0.291841, 0.258571),
+      new Translation2d(0.291841, -0.258571),
+      new Translation2d(-0.291841, 0.258571),
+      new Translation2d(-0.291841, -0.258571)
+    };
+
+    public static final PIDController kWheelPID = new PIDController(0.4, 0, 0);
+
+    public static final PIDController kTrajectoryPID = new PIDController(1, 0, 0);
 
   }
 
@@ -90,6 +117,8 @@ public final class Constants {
     public static final PIDController kPID = new PIDController(2d/3d, 0, 0);
     public static final double kPositionTollerance = 1; //1 Degree
     public static final double kVelocotiyTollerance = 5; //5 Degrees/s
+
+    public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 25, 25, 0);
 
     public static final int kRatchetForward = 6;
     public static final int kRatchetReverse = 7;
@@ -121,5 +150,9 @@ public final class Constants {
 
     public static final PIDController kPID = new PIDController(20/(Units.inchesToMeters(37)), 0, 0);
     public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
+  
+    public static final double kMinDistance = 0;
+    public static final double kMaxDistance = Units.inchesToMeters(35);
+  
   }
 }

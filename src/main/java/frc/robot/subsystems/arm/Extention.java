@@ -2,49 +2,51 @@ package frc.robot.subsystems.arm;
 
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.CAN;
 import frc.robot.Constants.ExtentionConstants;
 import frc.robot.Constants.FalconConstants;
+import frc.robot.Constants.RobotConstants;
 
 public class Extention extends SubsystemBase {
     
-    private final WPI_TalonFX mArm;
+    private final WPI_TalonFX mMotor;
     private final PIDController mPID;
-    private double mTargetExtension;
+    private double mTargetDistance;
     
     boolean mPIDEnabled;
 
     public Extention() {
 
-        mArm = new WPI_TalonFX(Constants.CAN.kArm);
-        mArm.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 30, 0));
-        mArm.setInverted(true);
+        mMotor = new WPI_TalonFX(CAN.kArm);
         mPID = ExtentionConstants.kPID;
+        mTargetDistance = 0;
 
         configureMotor();
 
     }
 
     public void configureMotor() {
-        mArm.configFactoryDefault();
-        mArm.setNeutralMode(NeutralMode.Brake);
-        mArm.configVoltageCompSaturation(10);
-        mArm.enableVoltageCompensation(true);
-        mArm.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 10, 10, 0));
+        mMotor.configFactoryDefault();
+        mMotor.setNeutralMode(NeutralMode.Brake);
+        mMotor.setInverted(true);
+        mMotor.configVoltageCompSaturation(RobotConstants.kMaximumVoltage);
+        mMotor.enableVoltageCompensation(true);
+        mMotor.configSupplyCurrentLimit(ExtentionConstants.kCurrentLimit);
     }
 
     public void set(double percent) {
-        mArm.set(percent);
+        mMotor.set(percent);
     }
 
     public void changeSetpointMeters(double setpoint) {
-        mTargetExtension = setpoint;
+        mTargetDistance = setpoint;
     }
 
     public void changeSetpointInches(double setpoint) {
@@ -52,37 +54,25 @@ public class Extention extends SubsystemBase {
     }
 
     public double getCurrentDistance() {
-        return FalconConstants.falconCountsToMeters(mArm.getSelectedSensorPosition(), ExtentionConstants.kGearing, ExtentionConstants.kSpoolDiameter);
+        return FalconConstants.falconCountsToMeters(mMotor.getSelectedSensorPosition(), ExtentionConstants.kGearing, ExtentionConstants.kSpoolDiameter);
     }
 
     public void runArm() {
-
         if (mPIDEnabled) {
-
-            double PIDEffort = mPID.calculate(getCurrentDistance(), MathUtil.clamp(mTargetExtension, 0, Units.inchesToMeters(35)));
-            mArm.set(PIDEffort / 12);
-
+            double PIDEffort = mPID.calculate(getCurrentDistance(), MathUtil.clamp(mTargetDistance, ExtentionConstants.kMinDistance, ExtentionConstants.kMaxDistance));
+            mMotor.set(PIDEffort / 12);
         }
-
      }
 
-     public void enablePID()  {mPIDEnabled = true; }
-     public void disablePID() {mPIDEnabled = false;}
-
-    public void extend() {
-        mArm.set(0.6);
-    }
-
-    public void retract() {
-        mArm.set(-0.6);
-    }
+    public void enablePID()  {mPIDEnabled = true; }
+    public void disablePID() {mPIDEnabled = false;}
 
     public void stop() {
-        mArm.stopMotor();;
+        mMotor.stopMotor();
     }
 
     public void resetEncoder() {
-        mArm.setSelectedSensorPosition(0);
+        mMotor.setSelectedSensorPosition(0);
     }
 
     @Override
@@ -90,10 +80,18 @@ public class Extention extends SubsystemBase {
 
         runArm();
 
-        Logger.getInstance().recordOutput("Raw Encoder", mArm.getSelectedSensorPosition());
-        Logger.getInstance().recordOutput("Arm Meters", getCurrentDistance());
-        Logger.getInstance().recordOutput("Extension Setpoint", mTargetExtension);
-        Logger.getInstance().recordOutput("extention volts", mArm.getMotorOutputVoltage());
+        Logger.getInstance().recordOutput("Extention/Extention Distance", getCurrentDistance());
+        Logger.getInstance().recordOutput("Extention/Extention Setpoint", mTargetDistance);
+        Logger.getInstance().recordOutput("Extention/Motor Voltage", mMotor.getMotorOutputVoltage());
+        Logger.getInstance().recordOutput("Extention/PID Enabled", mPIDEnabled);
+
+    }
+
+    public Command changeSetpoint(double distance) {
+        return new InstantCommand(
+            () -> mTargetDistance = distance,
+            this
+        );
     }
 
 }

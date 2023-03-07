@@ -12,10 +12,13 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.FalconConstants;
 import frc.robot.Constants.PivotConstants;
+import frc.robot.Constants.RobotConstants;
 
 public class Pivot extends SubsystemBase {
     
@@ -54,9 +57,9 @@ public class Pivot extends SubsystemBase {
         mPivot.setNeutralMode(NeutralMode.Brake);
         mPivot.setInverted(InvertType.InvertMotorOutput);
         mPivot.setSelectedSensorPosition(0);
-        mPivot.configVoltageCompSaturation(10);
+        mPivot.configVoltageCompSaturation(RobotConstants.kMaximumVoltage);
         mPivot.enableVoltageCompensation(true);
-        mPivot.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 25, 25, 0));
+        mPivot.configSupplyCurrentLimit(PivotConstants.kCurrentLimit);
     }
 
     public void runPivot() {
@@ -112,7 +115,7 @@ public class Pivot extends SubsystemBase {
         return FalconConstants.degreesToFalconCounts(mPivot.getSelectedSensorPosition() + mFalconOffset, PivotConstants.kGearing);
     }
 
-    public double getThroughBoreAngle () {
+    public double getThroughBoreAngle() {
         return ((mEncoder.getAbsolutePosition()) - mEncoder.getPositionOffset()) * 360;
     }
 
@@ -132,4 +135,12 @@ public class Pivot extends SubsystemBase {
         Logger.getInstance().recordOutput("Pivot/Trim Value", mTrimAngle);
 
     }
+
+    public Command changeSetpoint(double angle) {
+        return new InstantCommand(
+            () -> mTargetAngle = angle,
+            this
+        );
+    }
+
 }
