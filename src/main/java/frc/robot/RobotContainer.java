@@ -7,11 +7,16 @@ import frc.robot.subsystems.drive.Drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -32,6 +37,8 @@ public class RobotContainer {
   private final Claw mClaw = new Claw();
   private final Pivot mPivot = new Pivot();
 
+  private final AutoCommands mAutos = new AutoCommands(mClaw, mDrivetrain, mExtention, mPivot);
+
   private SendableChooser<SequentialCommandGroup[]> mAutoChooser = new SendableChooser<>();
 
   public RobotContainer() {
@@ -42,11 +49,14 @@ public class RobotContainer {
   private void configureBindings() {
 
     mDrivetrain.setDefaultCommand(
-      mDrivetrain.DriverControl(
-        () -> -mXTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftY(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
-        () -> -mYTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftX(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
-        () -> -mRotationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getRightX(), 0.1) * DriveConstants.kMaxRotationSpeed), 
-        true
+      new RunCommand(
+        () -> mDrivetrain.drive(
+          -mXTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftY(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
+          -mYTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftX(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
+          -mRotationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getRightX(), 0.1) * DriveConstants.kMaxRotationSpeed), 
+          true
+        )
+        , mDrivetrain
       )
     );
 
@@ -64,20 +74,11 @@ public class RobotContainer {
       )
     );
 
-    configureAutoChooser();
 
   }
 
-      
-  public void configureAutoChooser() {
-    mAutoChooser.setDefaultOption("Nothing", new SequentialCommandGroup[]{null, null});
-    SmartDashboard.putData("Auto Chooser", mAutoChooser);
-  }
-
-  public SequentialCommandGroup getAutonomousCommand() {
-    int alliance = (DriverStation.getAlliance() == Alliance.Blue) ? 0 : 1;
-    Logger.getInstance().recordOutput("Robot/SelectedAlliance", alliance);
-    return mAutoChooser.getSelected()[alliance];
+  public Command getAutonomousCommand() {
+    return mAutos.getAuto();
   }
 
 }

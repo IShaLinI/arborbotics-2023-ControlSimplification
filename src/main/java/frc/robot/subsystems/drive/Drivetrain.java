@@ -23,6 +23,7 @@ import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -269,6 +270,11 @@ public class Drivetrain extends SubsystemBase {
   public void resetPose(Pose2d position) {
     mPoseEstimator.resetPosition(mPigeon.getRotation2d(), getCurrentDistances(), position);
   }
+
+  public void resetPoseAndGyro(Pose2d pose){
+    mPigeon.setYaw(pose.getRotation().getDegrees());
+    mPoseEstimator.resetPosition(pose.getRotation(), getCurrentDistances(), pose);
+  }
   
   public void stop() {
     mFrontRight.stopMotor();
@@ -309,38 +315,6 @@ public class Drivetrain extends SubsystemBase {
 
   public MecanumDriveKinematics getKinematics() {
     return mKinematics;
-  }
-
-  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
-    return new SequentialCommandGroup(
-        new InstantCommand(() -> {
-          // Reset odometry for the first path you run during auto
-          if(isFirstPath){
-              this.resetPose(traj.getInitialHolonomicPose());
-          }
-        }),
-        new PPMecanumControllerCommand(
-            traj, 
-            this::getPose, // Pose supplier
-            this.mKinematics, // MecanumDriveKinematics
-            DriveConstants.kTrajectoryPID, // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            DriveConstants.kTrajectoryPID, // Y controller (usually the same values as X controller)
-            DriveConstants.kTrajectoryPID, // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            DriveConstants.kTrajectoryMaxSpeed, // Max wheel velocity meters per second
-            this::setSpeeds, // MecanumDriveWheelSpeeds consumer
-            false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-            this // Requires this drive subsystem
-        )
-    );
-  }
-
-  public Command DriverControl(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, boolean fieldRelative) {
-    return new RunCommand(() -> {
-      drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rot.getAsDouble(), fieldRelative);
-    }, 
-      this
-    );
-    
   }
 
 }

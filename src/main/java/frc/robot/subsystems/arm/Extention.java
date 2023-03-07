@@ -13,6 +13,7 @@ import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.ExtentionConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.ExtentionConstants.SETPOINTS;
 
 public class Extention extends SubsystemBase {
     
@@ -87,9 +88,9 @@ public class Extention extends SubsystemBase {
 
     }
 
-    public Command changeSetpoint(double distance) {
+    public Command changeSetpoint(SETPOINTS setpoint) {
         return new InstantCommand(
-            () -> mTargetDistance = distance,
+            () -> mTargetDistance = setpoint.distance,
             this
         );
     }

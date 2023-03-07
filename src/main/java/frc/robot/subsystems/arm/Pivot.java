@@ -18,6 +18,7 @@ import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.PivotConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.PivotConstants.SETPOINTS;
 
 public class Pivot extends SubsystemBase {
     
@@ -135,9 +136,9 @@ public class Pivot extends SubsystemBase {
 
     }
 
-    public Command changeSetpoint(double angle) {
+    public Command changeSetpoint(SETPOINTS setpoint) {
         return new InstantCommand(
-            () -> mTargetAngle = angle,
+            () -> mTargetAngle = setpoint.angle,
             this
         );
     }
