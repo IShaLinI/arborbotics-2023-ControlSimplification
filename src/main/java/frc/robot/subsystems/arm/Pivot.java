@@ -3,7 +3,6 @@ package frc.robot.subsystems.arm;
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -15,15 +14,15 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
-import frc.robot.Constants.FalconConstants;
 import frc.robot.Constants.PivotConstants;
 import frc.robot.Constants.RobotConstants;
 
 public class Pivot extends SubsystemBase {
     
     private final WPI_TalonFX mPivot;
-    private final DoubleSolenoid mSolenoid;
+    private final DoubleSolenoid mRatchet;
     private final DutyCycleEncoder mEncoder;
     private final PIDController mPID;
 
@@ -34,7 +33,7 @@ public class Pivot extends SubsystemBase {
     public Pivot() {
 
         mPivot = new WPI_TalonFX(CAN.kPivot);
-        mSolenoid = new DoubleSolenoid(
+        mRatchet = new DoubleSolenoid(
             CAN.kPCM, 
             PneumaticsModuleType.REVPH, 
             PivotConstants.kRatchetForward, 
@@ -85,7 +84,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        mFalconOffset = FalconConstants.degreesToFalconCounts(getThroughBoreAngle(), PivotConstants.kGearing);
+        mFalconOffset = Conversions.degreesToFalconCounts(getThroughBoreAngle(), PivotConstants.kGearing);
     }
 
     public boolean atTarget(){
@@ -100,11 +99,11 @@ public class Pivot extends SubsystemBase {
     }
 
     public void engageRatchet() {
-        mSolenoid.set(Value.kReverse);
+        mRatchet.set(Value.kForward);
     }
 
     public void disengageRatchet() {
-        mSolenoid.set(Value.kForward);
+        mRatchet.set(Value.kReverse);
     }
   
     public void stop() {
@@ -112,7 +111,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public double getAngle() {
-        return FalconConstants.degreesToFalconCounts(mPivot.getSelectedSensorPosition() + mFalconOffset, PivotConstants.kGearing);
+        return Conversions.degreesToFalconCounts(mPivot.getSelectedSensorPosition() + mFalconOffset, PivotConstants.kGearing);
     }
 
     public double getThroughBoreAngle() {
@@ -131,7 +130,7 @@ public class Pivot extends SubsystemBase {
         Logger.getInstance().recordOutput("Pivot/Current Angle", getAngle());
         Logger.getInstance().recordOutput("Pivot/At Target", atTarget());
         Logger.getInstance().recordOutput("Pivot/Motor Voltage", mPivot.getMotorOutputVoltage());
-        Logger.getInstance().recordOutput("Pivot/Ratchet State", mSolenoid.get() == Value.kReverse);
+        Logger.getInstance().recordOutput("Pivot/Ratchet State", (mRatchet.get() == Value.kForward) ? "Engaged" : "Disengaged");
         Logger.getInstance().recordOutput("Pivot/Trim Value", mTrimAngle);
 
     }

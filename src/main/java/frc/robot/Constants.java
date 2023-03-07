@@ -31,35 +31,6 @@ public final class Constants {
 
   }
 
-  public static class FalconConstants {
-
-    public static final int CPR = 2048;
-
-    /**
-     * @param deg Value in degrees
-     * @param gearing Value < 0 for reductions
-     * @return Falcon Encoder Counts
-     */
-    public static int degreesToFalconCounts(double deg, double gearing){
-      return (int)(deg * (1d/360d) * (1/gearing) * (1d / CPR));
-    }
-
-    public static double falconCountsToDegrees(double counts, double gearing){
-      return counts * (1 / CPR) * gearing * 360;
-    }
-
-    /**
-     * @param counts Falcon encoder counts
-     * @param gearing Value < 0 for reductions
-     * @param wheelDiameter Diameter of wheel
-     * @return meters
-     */
-    public static double falconCountsToMeters(double counts, double gearing, double wheelDiameter){
-      return (1.0 / CPR) * wheelDiameter * Math.PI * gearing;
-    }
-
-  }
-
   public static class ClawConstants {
     public static final int kLeftPistonForward = 12;
     public static final int kLeftPistonReverse = 13;
@@ -78,7 +49,7 @@ public final class Constants {
     //ENCODERS YAY FUN 
     public static final double kWheelDiameter = Units.inchesToMeters(6);
     public static final double kGearing = 1 / KitbotGearing.k10p71.value;
-    public static final double kFalconToMeters = (1.0 / FalconConstants.CPR) * (kWheelDiameter * Math.PI) * kGearing;
+    public static final double kFalconToMeters = (1.0 / Conversions.FALCON_CPR) * (kWheelDiameter * Math.PI) * kGearing;
     
     public static final double kS = 0.13305;
     public static final double kV = 2.2876;

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -27,11 +29,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.FalconConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.Vision;
 
@@ -161,8 +164,27 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     updateOdometry();
     mField.setRobotPose(getPose());
+
+    Logger.getInstance().recordOutput("Drivetrain/Front Left Position", getCurrentDistances().frontLeftMeters);
+    Logger.getInstance().recordOutput("Drivetrain/Front Right Position", getCurrentDistances().frontRightMeters);
+    Logger.getInstance().recordOutput("Drivetrain/Back Left Position", getCurrentDistances().rearLeftMeters);
+    Logger.getInstance().recordOutput("Drivetrain/Back Right Position", getCurrentDistances().rearRightMeters);
+
+    Logger.getInstance().recordOutput("Drivetrain/Front Left Velocity", getCurrentState().frontLeftMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Front Right Velocity", getCurrentState().frontRightMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Back Left Velocity", getCurrentState().rearLeftMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Back Right Velocity", getCurrentState().rearRightMetersPerSecond);
+
+    Logger.getInstance().recordOutput("Drivetrain/Front Left Voltage", mFrontLeft.getMotorOutputVoltage());
+    Logger.getInstance().recordOutput("Drivetrain/Front Right Voltage", mFrontRight.getMotorOutputVoltage());
+    Logger.getInstance().recordOutput("Drivetrain/Back Left Voltage", mBackLeft.getMotorOutputVoltage());
+    Logger.getInstance().recordOutput("Drivetrain/Back Right Voltage", mBackRight.getMotorOutputVoltage());
+
+    Logger.getInstance().recordOutput("Drivetrain/Gyro Angle", mPigeon.getAngle());
+
   }
 
   public void resetGyro() {
@@ -174,20 +196,20 @@ public class Drivetrain extends SubsystemBase {
   // current state of dt velocity
   public MecanumDriveWheelSpeeds getCurrentState() {
     return new MecanumDriveWheelSpeeds(
-      FalconConstants.falconCountsToMeters(mFrontLeft.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter), 
-      FalconConstants.falconCountsToMeters(mFrontRight.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter),
-      FalconConstants.falconCountsToMeters(mBackLeft.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter),
-      FalconConstants.falconCountsToMeters(mBackRight.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter)
+      Conversions.falconCountsToMeters(mFrontLeft.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter), 
+      Conversions.falconCountsToMeters(mFrontRight.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter),
+      Conversions.falconCountsToMeters(mBackLeft.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter),
+      Conversions.falconCountsToMeters(mBackRight.getSelectedSensorVelocity() * 10, DriveConstants.kGearing, DriveConstants.kWheelDiameter)
     );
   }
 
   //distances measured in meters
   public MecanumDriveWheelPositions getCurrentDistances() {
     return new MecanumDriveWheelPositions(
-      FalconConstants.falconCountsToMeters(mFrontLeft.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
-      FalconConstants.falconCountsToMeters(mFrontRight.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
-      FalconConstants.falconCountsToMeters(mBackLeft.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
-      FalconConstants.falconCountsToMeters(mBackRight.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter)
+      Conversions.falconCountsToMeters(mFrontLeft.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
+      Conversions.falconCountsToMeters(mFrontRight.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
+      Conversions.falconCountsToMeters(mBackLeft.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter),
+      Conversions.falconCountsToMeters(mBackRight.getSelectedSensorPosition(), DriveConstants.kGearing, DriveConstants.kWheelDiameter)
     );
   }
 
@@ -228,6 +250,11 @@ public class Drivetrain extends SubsystemBase {
       speeds.rearRightMetersPerSecond
     );
 
+    Logger.getInstance().recordOutput("Drivetrain/Front Left Velocity Setpoint", speeds.frontLeftMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Front Right Velocity Setpoint", speeds.frontRightMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Back Left Velocity Setpoint", speeds.rearLeftMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/Back Right Velocity Setpoint", speeds.rearRightMetersPerSecond);
+
     mFrontLeft.set(MathUtil.clamp(frontLeftFeedForward + frontLeftOutput, -12, 12) / 12d);
     mFrontRight.set(MathUtil.clamp(frontRightFeedForward + frontRightOutput, -12, 12) / 12d);
     mBackLeft.set(MathUtil.clamp(backLeftFeedForward + backLeftOutput, -12, 12) / 12d);
@@ -240,9 +267,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetPose(Pose2d position) {
-
     mPoseEstimator.resetPosition(mPigeon.getRotation2d(), getCurrentDistances(), position);
-
   }
   
   public void stop() {
@@ -269,11 +294,11 @@ public class Drivetrain extends SubsystemBase {
 
     if (result.isPresent()) {
       EstimatedRobotPose camPose = result.get();
-      Logger.getInstance().recordOutput("Vision Pose", camPose.estimatedPose.toPose2d());
+      Logger.getInstance().recordOutput("Drivetrain/Vision Pose", camPose.estimatedPose.toPose2d());
       mPoseEstimator.addVisionMeasurement(camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
     }
 
-    Logger.getInstance().recordOutput("Odo Pose", mPoseEstimator.getEstimatedPosition());
+    Logger.getInstance().recordOutput("Drivetrain/Odometry Pose", mPoseEstimator.getEstimatedPosition());
 
   }
  
@@ -307,7 +332,16 @@ public class Drivetrain extends SubsystemBase {
             this // Requires this drive subsystem
         )
     );
-}
+  }
+
+  public Command DriverControl(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, boolean fieldRelative) {
+    return new RunCommand(() -> {
+      drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rot.getAsDouble(), fieldRelative);
+    }, 
+      this
+    );
+    
+  }
 
 
 }

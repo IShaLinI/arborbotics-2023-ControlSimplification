@@ -1,6 +1,5 @@
 package frc.robot;
 
-import frc.robot.commands.DriverControl;
 import frc.robot.subsystems.arm.Extention;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.claw.Claw;
@@ -13,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.custom.controls.deadbander;
+import frc.robot.custom.controls.Deadbander;
 
 public class RobotContainer {
 
@@ -37,24 +36,24 @@ public class RobotContainer {
   private void configureBindings() {
 
     mDrivetrain.setDefaultCommand(
-      new DriverControl(mDrivetrain, 
-        ()-> deadbander.applyLinearScaledDeadband(-mDriver.getRightY(), 0.1) * 2.5, 
-        ()-> deadbander.applyLinearScaledDeadband(-mDriver.getRightX(), 0.1) * 2.5, 
-        ()-> deadbander.applyLinearScaledDeadband(-mDriver.getLeftX(), 0.1) * 2.5, 
+      mDrivetrain.DriverControl(
+        () -> -mDriver.getLeftY(), 
+        () -> -mDriver.getLeftX(), 
+        () -> -mDriver.getRightX(), 
         true
       )
     );
 
     mPivot.setDefaultCommand(
       new RunCommand(
-        () -> mPivot.trimTargetAngle(deadbander.applyLinearScaledDeadband(-mOperator.getLeftY(), 0.2) * 0.3), 
+        () -> mPivot.trimTargetAngle(Deadbander.applyLinearScaledDeadband(-mOperator.getLeftY(), 0.2) * 0.3), 
         mPivot
       )
     );
 
     mExtention.setDefaultCommand(
       new RunCommand(
-        () -> mExtention.set(deadbander.applyLinearScaledDeadband(-mOperator.getRightY(), 0.1)), 
+        () -> mExtention.set(Deadbander.applyLinearScaledDeadband(-mOperator.getRightY(), 0.1)), 
         mExtention
       )
     );

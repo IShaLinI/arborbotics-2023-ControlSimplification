@@ -1,6 +1,6 @@
 package frc.robot.custom.controls;
 
-public class deadbander {
+public class Deadbander {
      /**
      * 
      * Author: Andrew Card
@@ -23,9 +23,10 @@ public class deadbander {
      * @return Deadbanded Value
      */
     public double applySimpleDeadband(double input, double thresh){
-        if(input > thresh){
+        if (Math.abs(input) < thresh) {
+            return 0;
+        } else {
             return input;
         }
-        return 0;
     }
 }

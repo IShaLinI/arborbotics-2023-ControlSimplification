@@ -9,9 +9,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.ExtentionConstants;
-import frc.robot.Constants.FalconConstants;
 import frc.robot.Constants.RobotConstants;
 
 public class Extention extends SubsystemBase {
@@ -54,7 +54,7 @@ public class Extention extends SubsystemBase {
     }
 
     public double getCurrentDistance() {
-        return FalconConstants.falconCountsToMeters(mMotor.getSelectedSensorPosition(), ExtentionConstants.kGearing, ExtentionConstants.kSpoolDiameter);
+        return Conversions.falconCountsToMeters(mMotor.getSelectedSensorPosition(), ExtentionConstants.kGearing, ExtentionConstants.kSpoolDiameter);
     }
 
     public void runArm() {
