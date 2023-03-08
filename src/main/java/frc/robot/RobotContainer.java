@@ -54,7 +54,7 @@ public class RobotContainer {
 
     mPivot.setDefaultCommand(
       new RunCommand(
-        () -> mPivot.trimTargetAngle(Deadbander.applyLinearScaledDeadband(-mOperator.getLeftY(), 0.2) * 0.3), 
+        () -> mPivot.trimTargetAngle(Deadbander.applyLinearScaledDeadband(-mOperator.getLeftY(), 0.2) * 5), 
         mPivot
       )
     );

@@ -73,7 +73,7 @@ public class Pivot extends SubsystemBase {
             double mPIDEffort = mPID.calculate(
                 getAngle(), 
                 MathUtil.clamp(
-                    mTargetAngle + mTrimAngle,
+                    mTargetAngle,
                     PivotConstants.kMinAngle, 
                     PivotConstants.kMaxAngle
                 )
@@ -127,7 +127,7 @@ public class Pivot extends SubsystemBase {
         Logger.getInstance().recordOutput("Pivot/TB Raw", mEncoder.getAbsolutePosition());
         Logger.getInstance().recordOutput("Pivot/TB Offset", mEncoder.getAbsolutePosition() - mEncoder.getPositionOffset());
         Logger.getInstance().recordOutput("Pivot/TB Angle", getThroughBoreAngle());
-        Logger.getInstance().recordOutput("Pivot/Setpoint Angle", mTargetAngle);
+        Logger.getInstance().recordOutput("Pivot/Setpoint Angle", mTargetAngle + mTrimAngle);
         Logger.getInstance().recordOutput("Pivot/Current Angle", getAngle());
         Logger.getInstance().recordOutput("Pivot/At Target", atTarget());
         Logger.getInstance().recordOutput("Pivot/Motor Voltage", mPivot.getMotorOutputVoltage());
