@@ -62,17 +62,6 @@ public class Pivot extends SubsystemBase {
         zeroEncoder();
         configureMotor();
 
-        mArmSim = new SingleJointedArmSim(
-            DCMotor.getFalcon500(1),
-            PivotConstants.kGearing,
-            SingleJointedArmSim.estimateMOI(ExtentionConstants.kMinDistance, 5.13),
-            ExtentionConstants.kMinDistance,
-            Units.degreesToRadians(PivotConstants.kMinAngle),
-            Units.degreesToRadians(PivotConstants.kMaxAngle),
-            true,
-            null
-        );
-
     }
 
     public void configureMotor() {
@@ -96,13 +85,13 @@ public class Pivot extends SubsystemBase {
             double mPIDEffort = mPID.calculate(
                 getAngle(), 
                 MathUtil.clamp(
-                    mTargetAngle,
+                    mTargetAngle + mTrimAngle,
                     PivotConstants.kMinAngle, 
                     PivotConstants.kMaxAngle
                 )
             );
 
-            mPivot.set(mPIDEffort / 12);
+            mPivot.set(MathUtil.clamp(mPIDEffort / 12, -1, 1));
         }
 
     }
@@ -112,7 +101,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public boolean atTarget(){
-        return mPID.atSetpoint();
+        return Math.abs(getAngle() - mTargetAngle + mTrimAngle) < PivotConstants.kPositionTollerance;
     }
 
     /**
@@ -170,14 +159,6 @@ public class Pivot extends SubsystemBase {
                 this
             )
         );
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        mArmSim.setInput(mPivot.get() * RobotConstants.kMaximumVoltage);
-        mArmSim.update(0.02);
-        mPivotSimCollection.setIntegratedSensorVelocity((int)(mArmSim.getVelocityRadPerSec() * (1 / 2*Math.PI) * (1 / PivotConstants.kGearing) * 2048 * 10));
-        mPivotSimCollection.setIntegratedSensorRawPosition((int)(mArmSim.getAngleRads() * (1 / 2*Math.PI) * (1 / PivotConstants.kGearing) * 2048));
     }
     
 }

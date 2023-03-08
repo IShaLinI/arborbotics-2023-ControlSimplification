@@ -1,5 +1,12 @@
 {
   "HALProvider": {
+    "Other Devices": {
+      "Talon FX[5]/Integrated Sensor": {
+        "header": {
+          "open": true
+        }
+      }
+    },
     "Timing": {
       "window": {
         "visible": false
