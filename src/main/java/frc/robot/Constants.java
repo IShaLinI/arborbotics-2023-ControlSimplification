@@ -114,8 +114,9 @@ public final class Constants {
     public static final PIDController kPID = new PIDController(20/(Units.inchesToMeters(37)), 0, 0);
     public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
   
-    public static final double kMinDistance = 0;
-    public static final double kMaxDistance = Units.inchesToMeters(35);
+    //Cad Numbers
+    public static final double kMinDistance = Units.inchesToMeters(41.205931);
+    public static final double kMaxDistance = Units.inchesToMeters(66.324751);
 
     public static enum SETPOINTS {
 
