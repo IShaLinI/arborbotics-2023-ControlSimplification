@@ -38,14 +38,14 @@ public class RobotContainer {
   }
 
  
-  private void configureBindings() {
+  private void configureBindings() {  
 
     mDrivetrain.setDefaultCommand(
       new RunCommand(
         () -> mDrivetrain.drive(
-          -mXTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftY(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
-          -mYTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftX(), 0.1) * DriveConstants.kMaxTranslationSpeed), 
-          -mRotationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getRightX(), 0.1) * DriveConstants.kMaxRotationSpeed), 
+          -mXTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftY(), 0.1) * ((mDriver.a().getAsBoolean()) ? DriveConstants.kTurboTranslationSpeed : DriveConstants.kNormalTranslationSpeed)), 
+          -mYTranslationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getLeftX(), 0.1) * ((mDriver.a().getAsBoolean()) ? DriveConstants.kTurboTranslationSpeed : DriveConstants.kNormalTranslationSpeed)), 
+          -mRotationLimiter.calculate(Deadbander.applyLinearScaledDeadband(mDriver.getRightX(), 0.1) * ((mDriver.a().getAsBoolean()) ? DriveConstants.kTurboRotationSpeed : DriveConstants.kNormalRotationSpeed)), 
           true
         )
         , mDrivetrain
