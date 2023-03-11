@@ -3,19 +3,25 @@ package frc.robot.subsystems.arm;
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Conversions;
 import frc.robot.Constants.CAN;
+import frc.robot.Constants.ExtentionConstants;
 import frc.robot.Constants.PivotConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.PivotConstants.SETPOINTS;
@@ -23,6 +29,8 @@ import frc.robot.Constants.PivotConstants.SETPOINTS;
 public class Pivot extends SubsystemBase {
     
     private final WPI_TalonFX mPivot;
+    private final TalonFXSimCollection mPivotSimCollection;
+
     private final DoubleSolenoid mRatchet;
     private final DutyCycleEncoder mEncoder;
     private final PIDController mPID;
@@ -31,9 +39,13 @@ public class Pivot extends SubsystemBase {
     public double mFalconOffset;
     public double mTrimAngle = 0;
 
+    public SingleJointedArmSim mArmSim;
+
     public Pivot() {
 
         mPivot = new WPI_TalonFX(CAN.kPivot);
+        mPivotSimCollection = new TalonFXSimCollection(mPivot);
+
         mRatchet = new DoubleSolenoid(
             CAN.kPCM, 
             PneumaticsModuleType.REVPH, 
@@ -73,13 +85,13 @@ public class Pivot extends SubsystemBase {
             double mPIDEffort = mPID.calculate(
                 getAngle(), 
                 MathUtil.clamp(
-                    mTargetAngle,
+                    mTargetAngle + mTrimAngle,
                     PivotConstants.kMinAngle, 
                     PivotConstants.kMaxAngle
                 )
             );
 
-            mPivot.set(mPIDEffort / 12);
+            mPivot.set(MathUtil.clamp(mPIDEffort / 12, -1, 1));
         }
 
     }
@@ -89,7 +101,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public boolean atTarget(){
-        return mPID.atSetpoint();
+        return Math.abs(getAngle() - mTargetAngle + mTrimAngle) < PivotConstants.kPositionTollerance;
     }
 
     /**
@@ -131,6 +143,7 @@ public class Pivot extends SubsystemBase {
         Logger.getInstance().recordOutput("Pivot/Current Angle", getAngle());
         Logger.getInstance().recordOutput("Pivot/At Target", atTarget());
         Logger.getInstance().recordOutput("Pivot/Motor Voltage", mPivot.getMotorOutputVoltage());
+        Logger.getInstance().recordOutput("Pivot/Motor Set", mPivot.get());
         Logger.getInstance().recordOutput("Pivot/Ratchet State", (mRatchet.get() == Value.kForward) ? "Engaged" : "Disengaged");
         Logger.getInstance().recordOutput("Pivot/Trim Value", mTrimAngle);
 
@@ -147,5 +160,5 @@ public class Pivot extends SubsystemBase {
             )
         );
     }
-
+    
 }

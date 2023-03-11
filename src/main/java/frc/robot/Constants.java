@@ -94,16 +94,19 @@ public final class Constants {
     //Meters/s
     public static final double kTrajectoryMaxSpeed = 3;
     public static final double kTrajectoryMaxAccel = 6;
-    public static final double kMaxTranslationSpeed = 3;
+    public static final double kNormalTranslationSpeed = 1;
+    public static final double kTurboTranslationSpeed = 4;
+
     //Rad/s
-    public static final double kMaxRotationSpeed = Math.PI;
+    public static final double kNormalRotationSpeed = Math.PI/2;
+    public static final double kTurboRotationSpeed = 3 * Math.PI/2;
 
     //Meters/s/s
-    public static final SlewRateLimiter kXTranslationLimiter = new SlewRateLimiter(2 * kMaxTranslationSpeed,2 * -kMaxTranslationSpeed, 0);
-    public static final SlewRateLimiter kYTranslationLimiter = new SlewRateLimiter(2 * kMaxTranslationSpeed,2 * -kMaxTranslationSpeed, 0);
-    
+    public static final SlewRateLimiter kXTranslationLimiter = new SlewRateLimiter(2 * kNormalTranslationSpeed,2 * -kTurboTranslationSpeed, 0);
+    public static final SlewRateLimiter kYTranslationLimiter = new SlewRateLimiter(2 * kNormalTranslationSpeed,2 * -kTurboTranslationSpeed, 0);
+
     //Rad/s/s
-    public static final SlewRateLimiter kRotationLimiter = new SlewRateLimiter(2 * kMaxRotationSpeed, 2 * -kMaxRotationSpeed, 0);
+    public static final SlewRateLimiter kRotationLimiter = new SlewRateLimiter(2 * kTurboRotationSpeed, 2 * -kTurboRotationSpeed, 0);
 
   }
 
@@ -114,8 +117,9 @@ public final class Constants {
     public static final PIDController kPID = new PIDController(20/(Units.inchesToMeters(37)), 0, 0);
     public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
   
-    public static final double kMinDistance = 0;
-    public static final double kMaxDistance = Units.inchesToMeters(35);
+    //Cad Numbers
+    public static final double kMinDistance = Units.inchesToMeters(41.205931);
+    public static final double kMaxDistance = Units.inchesToMeters(66.324751);
 
     public static enum SETPOINTS {
 
