@@ -1,9 +1,14 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -35,11 +40,17 @@ public class Robot extends LoggedRobot {
            break;
        }
 
-       logger.addDataReceiver(new WPILOGWriter(""));
-       logger.addDataReceiver(new NT4Publisher());
+      if (isReal()) {
+        Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+        Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      } else {
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+        Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
+        Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+      }
 
     logger.start();
-  
 
   }
 
