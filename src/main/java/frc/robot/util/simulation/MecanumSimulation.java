@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.drive;
+package frc.robot.util.simulation;
 
 import java.util.function.Supplier;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 /*
  * Inacurate Mecanum "Sim" for Testing Purposes
  * Disclaimer "Will not be accurate to real hardware"
+ * 
+ * Author: Andrew Card
+ * 
  */
 public class MecanumSimulation {
 
@@ -44,6 +47,18 @@ public class MecanumSimulation {
 
     private static double dtSeconds = 0.02;
 
+    private double[] mSysID;
+
+    /**
+     * @param _motorSims Motor Sim Collection
+     * @param _pigeonSim Gyro Sim Collection
+     * @param _sysid [kS, kV, kA]
+     * @param _kinematics Drivetrain kinematics
+     * @param _motor //Drive motor type
+     * @param _gearRatio //Drive ratio
+     * @param _wheelSpeeds //Wheel Velocities Method
+     * @param _motorSets //Motor Sets -1 to 1
+     */
     public  MecanumSimulation(
         TalonFXSimCollection[] _motorSims,
         BasePigeonSimCollection _pigeonSim,
@@ -53,7 +68,7 @@ public class MecanumSimulation {
         double _gearRatio, 
         Supplier<MecanumDriveWheelSpeeds> _wheelSpeeds,
         Supplier<double[]> _motorSets
-) {
+    ) {
 
         mFrontLeftSimCollection = _motorSims[0];
         mFrontRightSimCollection = _motorSims[1];
@@ -74,14 +89,16 @@ public class MecanumSimulation {
 
         mWheelSpeeds = _wheelSpeeds;
         mMotorSets = _motorSets;
+
+        mSysID = _sysid;
     }
 
     public void update() {
 
-        mFrontLeftWheelSimulation.setInput(mMotorSets.get()[0] * RobotController.getBatteryVoltage());
-        mFrontRightWheelSimulation.setInput(mMotorSets.get()[1] * RobotController.getBatteryVoltage());
-        mBackLeftWheelSimulation.setInput(mMotorSets.get()[2] * RobotController.getBatteryVoltage());
-        mBackRightWheelSimulation.setInput(mMotorSets.get()[3] * RobotController.getBatteryVoltage());
+        mFrontLeftWheelSimulation.setInput((Math.abs(mMotorSets.get()[0]) < mSysID[0]) ? 0 : mMotorSets.get()[0] * RobotController.getBatteryVoltage());
+        mFrontRightWheelSimulation.setInput((Math.abs(mMotorSets.get()[1]) < mSysID[0]) ? 0 : mMotorSets.get()[1] * RobotController.getBatteryVoltage());
+        mBackLeftWheelSimulation.setInput((Math.abs(mMotorSets.get()[2]) < mSysID[0]) ? 0 : mMotorSets.get()[2] * RobotController.getBatteryVoltage());
+        mBackRightWheelSimulation.setInput((Math.abs(mMotorSets.get()[3]) < mSysID[0]) ? 0 : mMotorSets.get()[3] * RobotController.getBatteryVoltage());
 
         mFrontLeftWheelSimulation.update(dtSeconds);
         mFrontRightWheelSimulation.update(dtSeconds);

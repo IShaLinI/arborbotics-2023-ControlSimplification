@@ -33,7 +33,7 @@ public class Claw extends SubsystemBase{
         mLeftPiston = new DoubleSolenoid(CAN.kPCM, PneumaticsModuleType.REVPH, ClawConstants.kLeftPistonForward, ClawConstants.kLeftPistonReverse);
         mRightPiston = new DoubleSolenoid(CAN.kPCM, PneumaticsModuleType.REVPH, ClawConstants.kRightPistonForward, ClawConstants.kRightPistonReverse);
 
-        mCurrentState = State.START;
+        mCurrentState = State.STARTING;
 
         configureMotors();
     }
@@ -83,9 +83,13 @@ public class Claw extends SubsystemBase{
 
     @Override
     public void periodic() {
+
+        runClaw();
+
         Logger.getInstance().recordOutput("Claw/Left Voltage", mLeftMotor.getMotorOutputVoltage());
         Logger.getInstance().recordOutput("Claw/Right Voltage", mRightMotor.getMotorOutputVoltage());
         Logger.getInstance().recordOutput("Claw/State", mCurrentState.name());
+
     }
 
 }

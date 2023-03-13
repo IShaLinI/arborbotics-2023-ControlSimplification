@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
+import frc.robot.util.math.FalconUtil;
 
 public final class Constants {
 
@@ -43,18 +44,25 @@ public final class Constants {
 
     public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
 
-    public static final double kInSpeed = 0.6;
-    public static final double kOutSpeed = 0.4;
+    public static final double kInSpeed = 0.3;
+    public static final double kOutSpeed = 0.2;
+
+    public static final double kS = 1;
 
     public static enum State {
-      GRAB(Value.kForward, kInSpeed),
+      GRAB(Value.kForward, -kInSpeed),
       RELEASE(Value.kForward, kOutSpeed),
-      NEUTRAL(Value.kReverse, 0),
-      START(Value.kForward, 0);
+      IDLE(Value.kReverse, -kS/12),
+      STOP(Value.kReverse, 0),
+      STARTING(Value.kForward, 0);
 
       public final Value value;
       public final double speed;
 
+      /**
+       * @param value Solenoid State
+       * @param speed Motor Percentage
+       */
       State(Value value, double speed) {
         this.value = value;
         this.speed = speed;
@@ -69,7 +77,7 @@ public final class Constants {
     //Robot Characteristics
     public static final double kWheelDiameter = Units.inchesToMeters(6);
     public static final double kGearing = 1 / KitbotGearing.k10p71.value;
-    public static final double kFalconToMeters = (1.0 / Conversions.FALCON_CPR) * (kWheelDiameter * Math.PI) * kGearing;
+    public static final double kFalconToMeters = (1.0 / FalconUtil.FALCON_CPR) * (kWheelDiameter * Math.PI) * kGearing;
     
     //Characterization Values
     public static final double kS = 0.13305;
@@ -111,32 +119,7 @@ public final class Constants {
   }
 
   public static class ExtentionConstants{
-    public static final double kGearing = 1d / 16d;
-    public static final double kSpoolDiameter = Units.inchesToMeters(0.95);
-
-    public static final PIDController kPID = new PIDController(20/(Units.inchesToMeters(37)), 0, 0);
     public static final SupplyCurrentLimitConfiguration kCurrentLimit = new SupplyCurrentLimitConfiguration(true, 10, 10, 0);
-  
-    //Cad Numbers
-    public static final double kMinDistance = Units.inchesToMeters(41.205931);
-    public static final double kMaxDistance = Units.inchesToMeters(66.324751);
-
-    public static enum SETPOINTS {
-
-      //TODO figure these out
-      INTAKE(0), 
-      CARRY(0), 
-      SCORE(0),
-      SUBSTATION(0),
-      START(0);
-
-      public final double distance;
-
-      private SETPOINTS(double distance) {
-        this.distance = distance;
-      }
-    }
-  
   }
 
   public static class PivotConstants {  
@@ -163,7 +146,7 @@ public final class Constants {
       CARRY(30), 
       SCORE(50),
       SUBSTATION(55),
-      START(66);
+      STARTING(66);
 
       public final int angle;
 

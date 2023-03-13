@@ -1,19 +1,21 @@
 package frc.robot;
 
+import frc.robot.subsystems.SimTesting;
 import frc.robot.subsystems.arm.Extention;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.util.controls.Deadbander;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PivotConstants;
-import frc.robot.custom.controls.Deadbander;
 
 public class RobotContainer {
 
@@ -28,6 +30,7 @@ public class RobotContainer {
   private final Extention mExtention = new Extention();
   private final Claw mClaw = new Claw();
   private final Pivot mPivot = new Pivot();
+  private final SimTesting mSimTesting = new SimTesting();
 
   private final AutoCommands mAutos = new AutoCommands(mClaw, mDrivetrain, mExtention, mPivot);
 
@@ -63,6 +66,13 @@ public class RobotContainer {
       new RunCommand(
         () -> mExtention.set(Deadbander.applyLinearScaledDeadband(-mOperator.getRightY(), 0.1)), 
         mExtention
+      )
+    );
+
+    mDriver.a().whileTrue(
+      new InstantCommand(
+        () -> mSimTesting.set(1),
+        mSimTesting
       )
     );
 

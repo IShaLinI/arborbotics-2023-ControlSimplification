@@ -50,7 +50,7 @@ public class AutoCommands {
         ));
 
         eventMap.put("carry", new SequentialCommandGroup(
-            claw.changeState(ClawConstants.State.NEUTRAL),
+            claw.changeState(ClawConstants.State.IDLE),
             pivot.changeSetpoint(PivotConstants.SETPOINTS.CARRY)
         ));
 

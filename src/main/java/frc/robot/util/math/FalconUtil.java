@@ -1,8 +1,12 @@
-package frc.robot;
+package frc.robot.util.math;
 
-public class Conversions {
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+
+public class FalconUtil {
   
     public static int FALCON_CPR = 2048;
+    public static double FALCON_KV = 12/Units.radiansPerSecondToRotationsPerMinute(DCMotor.getFalcon500(1).freeSpeedRadPerSec);
 
     /**
      * @param deg Value in degrees
@@ -15,6 +19,10 @@ public class Conversions {
 
     public static double falconCountsToDegrees(double counts, double gearing){
       return counts * (1 / FALCON_CPR) * gearing * 360;
+    }
+
+    public static double falconCountsToRPM(double counts, double gearing){
+      return counts * 10 * gearing * 60;
     }
 
     /**
