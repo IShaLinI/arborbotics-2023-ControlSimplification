@@ -47,8 +47,6 @@ public class MecanumSimulation {
 
     private static double dtSeconds = 0.02;
 
-    private double[] mSysID;
-
     /**
      * @param _motorSims Motor Sim Collection
      * @param _pigeonSim Gyro Sim Collection
@@ -90,15 +88,14 @@ public class MecanumSimulation {
         mWheelSpeeds = _wheelSpeeds;
         mMotorSets = _motorSets;
 
-        mSysID = _sysid;
     }
 
     public void update() {
 
-        mFrontLeftWheelSimulation.setInput((Math.abs(mMotorSets.get()[0]) < mSysID[0]) ? 0 : mMotorSets.get()[0] * RobotController.getBatteryVoltage());
-        mFrontRightWheelSimulation.setInput((Math.abs(mMotorSets.get()[1]) < mSysID[0]) ? 0 : mMotorSets.get()[1] * RobotController.getBatteryVoltage());
-        mBackLeftWheelSimulation.setInput((Math.abs(mMotorSets.get()[2]) < mSysID[0]) ? 0 : mMotorSets.get()[2] * RobotController.getBatteryVoltage());
-        mBackRightWheelSimulation.setInput((Math.abs(mMotorSets.get()[3]) < mSysID[0]) ? 0 : mMotorSets.get()[3] * RobotController.getBatteryVoltage());
+        mFrontLeftWheelSimulation.setInput(mMotorSets.get()[0] * RobotController.getBatteryVoltage());
+        mFrontRightWheelSimulation.setInput(mMotorSets.get()[1] * RobotController.getBatteryVoltage());
+        mBackLeftWheelSimulation.setInput(mMotorSets.get()[2] * RobotController.getBatteryVoltage());
+        mBackRightWheelSimulation.setInput(mMotorSets.get()[3] * RobotController.getBatteryVoltage());
 
         mFrontLeftWheelSimulation.update(dtSeconds);
         mFrontRightWheelSimulation.update(dtSeconds);

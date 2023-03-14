@@ -6,7 +6,7 @@ import edu.wpi.first.math.util.Units;
 public class FalconUtil {
   
     public static int FALCON_CPR = 2048;
-    public static double FALCON_KV = 12/Units.radiansPerSecondToRotationsPerMinute(DCMotor.getFalcon500(1).freeSpeedRadPerSec);
+    public static double FALCON_KV = Units.radiansPerSecondToRotationsPerMinute(DCMotor.getFalcon500(1).freeSpeedRadPerSec)/148000; //Dont ask where the 148000 comes from i dont know
 
     /**
      * @param deg Value in degrees
@@ -22,7 +22,7 @@ public class FalconUtil {
     }
 
     public static double falconCountsToRPM(double counts, double gearing){
-      return counts * 10 * gearing * 60;
+      return counts * gearing * 600 * (1d/FALCON_CPR);
     }
 
     /**

@@ -34,8 +34,6 @@ public class RobotContainer {
 
   private final AutoCommands mAutos = new AutoCommands(mClaw, mDrivetrain, mExtention, mPivot);
 
-  private SendableChooser<SequentialCommandGroup[]> mAutoChooser = new SendableChooser<>();
-
   public RobotContainer() {
     configureBindings();
   }
@@ -72,6 +70,13 @@ public class RobotContainer {
     mDriver.a().whileTrue(
       new InstantCommand(
         () -> mSimTesting.set(1),
+        mSimTesting
+      )
+    );
+
+    mDriver.a().whileFalse(
+      new InstantCommand(
+        () -> mSimTesting.set(0),
         mSimTesting
       )
     );

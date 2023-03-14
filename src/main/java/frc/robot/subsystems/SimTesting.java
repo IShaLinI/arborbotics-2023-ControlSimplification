@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.util.math.FalconUtil;
 import frc.robot.util.simulation.SimpleFalconSim;
 
@@ -33,7 +34,7 @@ public class SimTesting extends SubsystemBase {
       new double[]{
         0, //kS
         FalconUtil.FALCON_KV, //kV
-        0.01 //kA
+        0.005 //kA
       },
       gearing,
       this::getMotorSet
@@ -56,8 +57,6 @@ public class SimTesting extends SubsystemBase {
   @Override
   public void periodic() {
     mFalconSim.update();
-
     Logger.getInstance().recordOutput("Sim/FalconRPM", getOutputRPM());
-
   }
 }

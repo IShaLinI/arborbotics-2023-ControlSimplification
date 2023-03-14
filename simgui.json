@@ -1,7 +1,12 @@
 {
   "HALProvider": {
     "Other Devices": {
-      "Talon FX[5]/Integrated Sensor": {
+      "Talon FX[99]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon FX[99]/Integrated Sensor": {
         "header": {
           "open": true
         }
@@ -43,6 +48,13 @@
         }
       },
       "/SmartDashboard/Field": {
+        "bottom": 544,
+        "height": 8.013679504394531,
+        "image": "C:\\Users\\Andrew Card\\Desktop\\FRC\\Robot-Projects\\arborbotics-2023-ControlSimplification\\2023-field.png",
+        "left": 46,
+        "right": 1088,
+        "top": 36,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }
@@ -56,7 +68,7 @@
     "transitory": {
       "AdvantageKit": {
         "RealOutputs": {
-          "Pivot": {
+          "Sim": {
             "open": true
           },
           "open": true

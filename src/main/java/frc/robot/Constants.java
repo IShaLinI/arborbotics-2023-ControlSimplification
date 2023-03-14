@@ -102,8 +102,8 @@ public final class Constants {
     //Meters/s
     public static final double kTrajectoryMaxSpeed = 3;
     public static final double kTrajectoryMaxAccel = 6;
-    public static final double kNormalTranslationSpeed = 1;
-    public static final double kTurboTranslationSpeed = 4;
+    public static final double kNormalTranslationSpeed = 2;
+    public static final double kTurboTranslationSpeed = 5;
 
     //Rad/s
     public static final double kNormalRotationSpeed = Math.PI/2;

@@ -32,7 +32,6 @@ public class SimpleFalconSim {
 
     private static double dtSeconds = 0.02;
 
-    private double[] mSysID;
 
     /**
      * @param _falconSim Motor Sim Collection
@@ -54,13 +53,11 @@ public class SimpleFalconSim {
         mOutputShaftSim = new FlywheelSim(_plant, DCMotor.getFalcon500(1), _gearRatio);
 
         mMotorSet = _motorSet;
-
-        mSysID = _sysid;
     
     }
 
     public void update(){
-        mOutputShaftSim.setInput(((Math.abs(mMotorSet.get()) < mSysID[0]) ? 0 : mMotorSet.get()) * RobotController.getBatteryVoltage());
+        mOutputShaftSim.setInput(mMotorSet.get() * RobotController.getBatteryVoltage());
         mOutputShaftSim.update(dtSeconds);
 
         double shaftVelocity = (mOutputShaftSim.getAngularVelocityRPM() * mGearRatio * 2048) / 600;
@@ -68,7 +65,6 @@ public class SimpleFalconSim {
 
         mFalconSim.setIntegratedSensorVelocity((int)shaftPositionDelta);
         mFalconSim.addIntegratedSensorPosition((int)shaftPositionDelta);
-
     }
 
 }
